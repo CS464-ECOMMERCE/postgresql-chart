@@ -367,7 +367,7 @@ primary:
         CREATE TABLE users (
           id SERIAL PRIMARY KEY,
           email VARCHAR(100) UNIQUE NOT NULL,
-          password_hash TEXT NOT NULL,
+          password_hash TEXT,
           role user_role NOT NULL DEFAULT 'client'
         );
 
@@ -405,6 +405,8 @@ primary:
           transaction_id VARCHAR(255) NOT NULL,
           status payment_status NOT NULL DEFAULT 'unpaid',
           gateway TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT fk_payment_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
         );
 
@@ -412,6 +414,8 @@ primary:
           order_id INT NOT NULL,
           product_id INT NOT NULL,
           quantity INT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           CONSTRAINT fk_order_id FOREIGN KEY (order_id) REFERENCES orders(id),
           CONSTRAINT fk_product_id FOREIGN KEY (product_id) REFERENCES products(id),
           CONSTRAINT pk_orderitem PRIMARY KEY (order_id, product_id)
