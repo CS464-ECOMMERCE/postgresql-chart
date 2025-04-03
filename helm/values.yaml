@@ -361,7 +361,7 @@ primary:
 
         CREATE TYPE order_status AS ENUM ('processing', 'cancelled', 'completed');
 
-        CREATE TYPE payment_status AS ENUM ('unpaid', 'paid', 'error');
+        CREATE TYPE payment_status AS ENUM ('pending', 'completed', 'cancelled', 'error');
 
 
         CREATE TABLE users (
@@ -376,6 +376,8 @@ primary:
           user_id INT NOT NULL,
           total NUMERIC(10,2) NOT NULL,
           status order_status NOT NULL DEFAULT 'processing',
+          transaction_id VARCHAR(255) NOT NULL,
+          payment_status status payment_status NOT NULL DEFAULT 'pending',
           transaction TEXT,
           CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id)
         );
@@ -400,16 +402,6 @@ primary:
           stripe_product_id VARCHAR(255)
         );
 
-        CREATE TABLE payments (
-          order_id INT PRIMARY KEY,
-          transaction_id VARCHAR(255) NOT NULL,
-          status payment_status NOT NULL DEFAULT 'unpaid',
-          gateway TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          CONSTRAINT fk_payment_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-        );
-
         CREATE TABLE orderitems (
           order_id INT NOT NULL,
           product_id INT NOT NULL,
@@ -431,10 +423,17 @@ primary:
           stripe_price_id,
           stripe_product_id
         ) VALUES
-          ('Book', 1, 1.23, 12, 'This is a book description', NULL, NULL, NULL),
-          ('Crayons', 1, 5.5, 2, 'This is a crayon description', NULL, NULL, NULL),
-          ('Table', 1, 200, 1, 'This is a table description', NULL, NULL, NULL),
-          ('Chair', 1, 99.90, 10, '', NULL, NULL, NULL);
+          ('Book', 1, 1.23, 12, 'This is a book description', NULL, 'price_1R289X2fahqAQuSF9FLFgWy9', 'prod_Rw09PADMzbrm5i'),
+          ('Crayons', 1, 5.5, 2, 'This is a crayon description', NULL, 'price_1R94HD2fahqAQuSF2dunWWDc', 'prod_S3AczQviRprZfD'),
+          ('Table', 1, 200, 1, 'This is a table description', NULL, 'price_1R94I72fahqAQuSFLGyIq4tK', 'prod_S3AdGhsGIOcpDt'),
+          ('Chair', 1, 99.90, 10, '', NULL, 'price_1R94IM2fahqAQuSFNahqJ7r1', 'prod_S3AdgZsfojgML0');
+
+        INSERT INTO users (
+          email,
+          password_hash,
+          role
+        ) VALUES
+        ('test@test.com', '$2a$10$6B/J96q.6oztUg9.YCw4UujRaGJxHHk3tvka2/qHnBV3d2yUz6kiW', 'merchant');
 
     ## @param primary.initdb.scriptsConfigMap ConfigMap with scripts to be run at first boot
     ## NOTE: This will override `primary.initdb.scripts`

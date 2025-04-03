@@ -361,7 +361,7 @@ primary:
 
         CREATE TYPE order_status AS ENUM ('processing', 'cancelled', 'completed');
 
-        CREATE TYPE payment_status AS ENUM ('unpaid', 'paid', 'error');
+        CREATE TYPE payment_status AS ENUM ('pending', 'completed', 'cancelled', 'error');
 
 
         CREATE TABLE users (
@@ -376,7 +376,8 @@ primary:
           user_id INT NOT NULL,
           total NUMERIC(10,2) NOT NULL,
           status order_status NOT NULL DEFAULT 'processing',
-          transaction TEXT,
+          transaction_id VARCHAR(255) NOT NULL,
+          payment_status status payment_status NOT NULL DEFAULT 'pending',
           CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id)
         );
 
@@ -398,16 +399,6 @@ primary:
           images TEXT[],
           stripe_price_id VARCHAR(255),
           stripe_product_id VARCHAR(255)
-        );
-
-        CREATE TABLE payments (
-          order_id INT PRIMARY KEY,
-          transaction_id VARCHAR(255) NOT NULL,
-          status payment_status NOT NULL DEFAULT 'unpaid',
-          gateway TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          CONSTRAINT fk_payment_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
         );
 
         CREATE TABLE orderitems (
