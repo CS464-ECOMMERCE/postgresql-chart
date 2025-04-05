@@ -378,7 +378,7 @@ primary:
           status order_status NOT NULL DEFAULT 'processing',
           transaction_id VARCHAR(255) NOT NULL,
           checkout_session_id VARCHAR(255),
-          payment_status status payment_status NOT NULL DEFAULT 'pending',
+          payment_status payment_status NOT NULL DEFAULT 'pending',
           CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id)
         );
 
